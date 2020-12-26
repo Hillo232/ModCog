@@ -2,7 +2,7 @@
 
 from discord.ext import commands
 import discord
-import json
+import discord.utils
 
 
 class ModCog(commands.Cog):
@@ -51,8 +51,7 @@ class ModCog(commands.Cog):
                     return
     @commands.command()
     async def mute(self, ctx, member: discord.Member):
-            role = ctx.guild.get_role(784168505498533920)
-            guild = ctx.guild
+            role = discord.utils.get(ctx.guild.roles,name="Muted")
             if role not in guild.roles:
                 perms = discord.Permissions(send_messages=False, speak=False)
                 await guild.create_role(name="Muted", permissions=perms)
@@ -68,6 +67,11 @@ class ModCog(commands.Cog):
                     description=(f"{member} was muted."), colour=discord.Colour.red()
                 )
                 await ctx.send(embed=embed)
+            for channel in guild.channels:
+                if channel.type==discord.CategoryChannel:
+                    pass
+                else:
+                    await channel.set_permissions(role, send_messages=False)
     @mute.error
     async def mute_error(self, ctx, error):
             if isinstance(error, commands.MissingRole):
